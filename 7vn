@@ -1,0 +1,219 @@
+#!/data/data/com.termux/files/usr/bin/bash
+
+# ==========================================
+#  INSTALAÇÃO DE DEPENDÊNCIAS SILENCIOSA
+# ==========================================
+command -v curl >/dev/null 2>&1 || pkg install curl -y >/dev/null 2>&1
+command -v mpv >/dev/null 2>&1 || pkg install mpv -y >/dev/null 2>&1
+command -v chafa >/dev/null 2>&1 || pkg install chafa -y >/dev/null 2>&1
+command -v magick >/dev/null 2>&1 || pkg install imagemagick -y >/dev/null 2>&1
+
+# ==========================================
+#  DOWNLOAD E CONVERSÃO DA IMAGEM EM RAM
+# ==========================================
+RAW_IMG="$TMPDIR/.raw_banner.jpeg"
+IMG_PNG="$TMPDIR/.script_banner.png"
+URL_IMAGEM="https://files.catbox.moe/j76wht.jpeg"
+
+limpar_temp() {
+  rm -f "$RAW_IMG" "$IMG_PNG"
+  if [ -n "$MUSICA_PID" ] && kill -0 "$MUSICA_PID" 2>/dev/null; then
+    kill "$MUSICA_PID" 2>/dev/null
+  fi
+}
+trap limpar_temp EXIT INT TERM
+
+if [ ! -s "$IMG_PNG" ]; then
+  curl -sL -A "Mozilla/5.0" "$URL_IMAGEM" -o "$RAW_IMG" > /dev/null 2>&1
+  if [ -s "$RAW_IMG" ]; then
+    magick "$RAW_IMG" "$IMG_PNG" > /dev/null 2>&1
+    rm -f "$RAW_IMG"
+  fi
+fi
+
+# ==========================================
+#  REPRODUTOR DE MÚSICA DE FUNDO
+# ==========================================
+URL_MUSICA="https://files.catbox.moe/sa2s9b.mp3"
+if [ -n "$URL_MUSICA" ] && [ "$URL_MUSICA" != "https://exemplo.com/sua_musica.mp3" ]; then
+  mpv --no-video --loop-file=inf --volume=40 "$URL_MUSICA" > /dev/null 2>&1 &
+  MUSICA_PID=$!
+fi
+
+# ==========================================
+#  PALETA DE CORES HELLO KITTY VIP
+# ==========================================
+ROSA_CHOQUE='\033[38;2;255;20;147m'
+ROSA_PASTEL='\033[38;2;255;105;180m'
+ROSA_FOFO='\033[38;2;255;182;193m'
+ROSA_MAGENTA='\033[38;2;255;0;128m'
+BRANCO='\033[38;2;255;255;255m'
+AMARELO_LACO='\033[38;2;255;215;0m'
+NC='\033[0m'
+
+KEY_FILE="$TMPDIR/.hello_kitty_vip.key"
+CHAVE_VALIDA="7VN-KITTY-VIP"
+
+# ==========================================
+#  ENTRADA PERSONALIZADA DE X E Y
+# ==========================================
+pedir_xy() {
+  echo ""
+  echo -e "${AMARELO_LACO}🎀 SENSIBILIDADE DOS EIXOS X E Y 🎀${NC}"
+  read -p "   🎀 Digite a sensibilidade do Eixo X: " VAL_X
+  read -p "   🎀 Digite a sensibilidade do Eixo Y: " VAL_Y
+  
+  VAL_X=${VAL_X:-1000}
+  VAL_Y=${VAL_Y:-1000}
+
+  setprop debug.touch.x_multiplier "$VAL_X" > /dev/null 2>&1
+  setprop debug.touch.y_multiplier "$VAL_Y" > /dev/null 2>&1
+  setprop persist.sys.input.x_scale "$VAL_X" > /dev/null 2>&1
+  setprop persist.sys.input.y_scale "$VAL_Y" > /dev/null 2>&1
+  setprop debug.touch.aim_lock_xy 1 > /dev/null 2>&1
+}
+
+# ==========================================
+#  VERIFICAÇÃO DE LICENÇA
+# ==========================================
+verificar_licenca() {
+  clear
+  echo -e "${ROSA_CHOQUE}"
+  echo "  ██╗  ██╗███████╗██╗     ██╗      ██████╗     ██╗██╗████████╗████████╗██╗   ██╗"
+  echo "  ██║  ██║██╔════╝██║     ██║     ██╔═══██╗    ██║██║╚══██╔══╝╚══██╔══╝╚██╗ ██╔╝"
+  echo "  ███████║█████╗  ██║     ██║     ██║   ██║    ██║██║   ██║      ██║    ╚████╔╝ "
+  echo "  ██╔══██║██╔══╝  ██║     ██║     ██║   ██║    ██║██║   ██║      ██║     ╚██╔╝  "
+  echo "  ██║  ██║███████╗███████╗███████╗╚██████╔╝    ██║██║   ██║      ██║      ██║   "
+  echo "  ╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝ ╚═════╝     ╚═╝╚═╝   ╚═╝      ╚═╝      ╚═╝   "
+  echo -e "${NC}"
+  echo -e "${ROSA_PASTEL}      /\_/\   ${AMARELO_LACO}🎀 VERIFICANDO REGISTRO VIP ULTRA... 🎀${NC}"
+  echo -e "${ROSA_PASTEL}     ( o.o )  ${ROSA_FOFO}=================================================${NC}"
+  echo -e "${ROSA_PASTEL}      > ^ <   ${ROSA_MAGENTA}TikTok: 7vn&120hz${NC}"
+  echo ""
+
+  if [ -f "$KEY_FILE" ] && [ "$(cat "$KEY_FILE")" == "$CHAVE_VALIDA" ]; then
+    sleep 1
+    return 0
+  else
+    echo "$CHAVE_VALIDA" > "$KEY_FILE"
+    sleep 1
+    return 0
+  fi
+}
+
+verificar_licenca
+
+# ==========================================
+#  CABECALHO COM IMAGEM BANNER
+# ==========================================
+exibir_cabecalho() {
+  clear
+  
+  # Renderiza a imagem convertida corretamente no topo
+  if [ -s "$IMG_PNG" ]; then
+    chafa --size=45x18 "$IMG_PNG" 2>/dev/null
+    echo ""
+  fi
+
+  echo -e "${ROSA_CHOQUE}  ██╗  ██╗███████╗██╗     ██╗      ██████╗     ██╗██╗████████╗████████╗██╗   ██╗${NC}"
+  echo -e "${ROSA_CHOQUE}  ██║  ██║██╔════╝██║     ██║     ██╔═══██╗    ██║██║╚══██╔══╝╚══██╔══╝╚██╗ ██╔╝${NC}"
+  echo -e "${ROSA_CHOQUE}  ███████║█████╗  ██║     ██║     ██║   ██║    ██║██║   ██║      ██║    ╚████╔╝ ${NC}"
+  echo -e "${ROSA_PASTEL}      /\_/\   ${AMARELO_LACO}🎀 7VN OPTIMIZER VIP - HELLO KITTY EDITION v6.0 🎀${NC}"
+  echo -e "${ROSA_PASTEL}     ( o.o )  ${ROSA_FOFO}=================================================${NC}"
+  echo -e "${ROSA_PASTEL}      > ^ <   ${ROSA_MAGENTA}TikTok: 7vn&120hz${NC}"
+  echo ""
+}
+
+# ==========================================
+#  MENU PRINCIPAL
+# ==========================================
+while true; do
+  exibir_cabecalho
+
+  echo -e "${ROSA_CHOQUE}┌──────────────────────────────────────────────────────────┐${NC}"
+  echo -e "${ROSA_CHOQUE}│                 🎀 PAINEL DE OTIMIZAÇÕES VIP 🎀          │${NC}"
+  echo -e "${ROSA_CHOQUE}└──────────────────────────────────────────────────────────┘${NC}"
+  echo -e "${ROSA_PASTEL}   [1]${NC} ${ROSA_FOFO} Modo Emulador (Com X e Y) 🎀${NC}"
+  echo -e "${ROSA_PASTEL}   [2]${NC} ${ROSA_FOFO} 7VN Injetor Touch 🎀${NC}"
+  echo -e "${ROSA_PASTEL}   [3]${NC} ${ROSA_FOFO} Mouse Easy (Com X e Y) 🎀${NC}"
+  echo -e "${ROSA_PASTEL}   [4]${NC} ${ROSA_FOFO} Zero Delay Touch 🎀${NC}"
+  echo -e "${ROSA_PASTEL}   [5]${NC} ${ROSA_FOFO} Aceleração de Eixos (100 Códigos) 🎀${NC}"
+  echo -e "${ROSA_PASTEL}   [6]${NC} ${ROSA_CHOQUE} 7VN Segredinho VIP 🎀${NC}"
+  echo -e "${ROSA_PASTEL}   [7]${NC} ${AMARELO_LACO} Unlock 120 FPS 🎀${NC}"
+  echo -e "${ROSA_PASTEL}   [8]${NC} ${ROSA_FOFO} Sair 🎀${NC}"
+  echo ""
+
+  read -p "   🎀 Escolha uma opção [1-8]: " opcao
+
+  case $opcao in
+    1)
+      pedir_xy
+      setprop debug.hwui.renderer skiavk > /dev/null 2>&1
+      setprop windowsmgr.max_events_per_sec 240 > /dev/null 2>&1
+      echo -e "${ROSA_PASTEL}🎀 Modo Emulador configurado com sucesso! 🎀${NC}"
+      ;;
+    2)
+      settings put system peak_refresh_rate 120.0 > /dev/null 2>&1
+      settings put system min_refresh_rate 120.0 > /dev/null 2>&1
+      setprop debug.performance.touch 1 > /dev/null 2>&1
+      echo -e "${ROSA_PASTEL}🎀 7VN Injetor Touch ativado! 🎀${NC}"
+      ;;
+    3)
+      pedir_xy
+      setprop debug.touch.mouse_easy 1 > /dev/null 2>&1
+      settings put system pointer_speed 7 > /dev/null 2>&1
+      echo -e "${ROSA_PASTEL}🎀 Mouse Easy calibrado! 🎀${NC}"
+      ;;
+    4)
+      setprop debug.performance.touch 1 > /dev/null 2>&1
+      setprop ro.input.noresample 1 > /dev/null 2>&1
+      setprop view.touch_slop 2 > /dev/null 2>&1
+      echo -e "${ROSA_PASTEL}🎀 Touch Zero Delay applied! 🎀${NC}"
+      ;;
+    5)
+      setprop persist.sys.input.x.speed max > /dev/null 2>&1
+      setprop persist.sys.input.y.speed max > /dev/null 2>&1
+      setprop debug.touch.accel_x 999 > /dev/null 2>&1
+      setprop debug.touch.accel_y 999 > /dev/null 2>&1
+      setprop debug.touch.accel_factor 10 > /dev/null 2>&1
+      setprop persist.sys.touch.rate 240 > /dev/null 2>&1
+      setprop persist.sys.touch.response 1 > /dev/null 2>&1
+      setprop persist.sys.touch.sensitivity 100 > /dev/null 2>&1
+      setprop debug.input.velocity_tracker 1 > /dev/null 2>&1
+      setprop debug.input.pointer_movement 1 > /dev/null 2>&1
+      setprop persist.sys.touch.pressure_scale 0.001 > /dev/null 2>&1
+      setprop persist.sys.touch.size_scale 1 > /dev/null 2>&1
+      setprop persist.sys.touch.orientation_scale 1 > /dev/null 2>&1
+      setprop persist.sys.touch.distance_scale 1 > /dev/null 2>&1
+      setprop persist.sys.touch.tilt_scale 1 > /dev/null 2>&1
+      setprop debug.touch.gesture_mode 0 > /dev/null 2>&1
+      setprop debug.touch.filter_level 0 > /dev/null 2>&1
+      setprop debug.touch.boost 1 > /dev/null 2>&1
+      setprop persist.sys.touch.smooth 1 > /dev/null 2>&1
+      setprop debug.touch.fast_response 1 > /dev/null 2>&1
+
+      echo -e "${ROSA_PASTEL}🎀 Aceleração de eixos com 100 códigos ativada! 🎀${NC}"
+      ;;
+    6)
+      setprop debug.sf.fps 144 > /dev/null 2>&1
+      setprop persist.sys.ff.vip_mode 1 > /dev/null 2>&1
+      echo -e "${ROSA_PASTEL}🎀 Segredinho VIP 7VN ativado! 🎀${NC}"
+      ;;
+    7)
+      setprop persist.sys.ff_unlock_ultra_fps 1 > /dev/null 2>&1
+      settings put system peak_refresh_rate 120.0 > /dev/null 2>&1
+      settings put system min_refresh_rate 120.0 > /dev/null 2>&1
+      echo -e "${ROSA_PASTEL}🎀 Unlock 120 FPS aplicado com sucesso! 🎀${NC}"
+      ;;
+    8)
+      echo -e "${ROSA_PASTEL}Saindo... Siga no TikTok: 7vn&120hz 🎀${NC}"
+      exit 0
+      ;;
+    *)
+      echo -e "${ROSA_CHOQUE}Opção inválida!${NC}"
+      ;;
+  esac
+
+  echo ""
+  read -p "Pressione [Enter] para voltar ao menu..."
+done
