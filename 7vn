@@ -1,10 +1,19 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
 # ==========================================
-#  INSTALAÇÃO DE DEPENDÊNCIAS ESSENCIAIS
+#  INSTALAÇÃO DE DEPENDÊNCIAS (COM CHAFA)
 # ==========================================
 command -v curl >/dev/null 2>&1 || pkg install curl -y >/dev/null 2>&1
 command -v mpv >/dev/null 2>&1 || pkg install mpv -y >/dev/null 2>&1
+command -v chafa >/dev/null 2>&1 || pkg install chafa -y >/dev/null 2>&1
+
+# ==========================================
+#  BAIXAR IMAGEM LOCAL SE NÃO EXISTIR
+# ==========================================
+LOCAL_IMG="$HOME/.hello_kitty_banner.jpeg"
+if [ ! -f "$LOCAL_IMG" ]; then
+  curl -sL "https://files.catbox.moe/j76wht.jpeg" -o "$LOCAL_IMG" >/dev/null 2>&1
+fi
 
 # ==========================================
 #  REPRODUTOR DE MÚSICA DE FUNDO
@@ -23,7 +32,7 @@ limpar_temp() {
 trap limpar_temp EXIT INT TERM
 
 # ==========================================
-#  PALETA DE CORES HELLO KITTY VIP
+#  PALETA DE CORES
 # ==========================================
 R='\033[38;2;255;20;147m'
 RP='\033[38;2;255;105;180m'
@@ -35,9 +44,6 @@ NC='\033[0m'
 KEY_FILE="$TMPDIR/.hello_kitty_vip.key"
 CHAVE_VALIDA="7VN-KITTY-VIP"
 
-# ==========================================
-#  ENTRADA PERSONALIZADA DE X E Y
-# ==========================================
 pedir_xy() {
   echo ""
   echo -e "${AM}🎀 SENSIBILIDADE DOS EIXOS X E Y 🎀${NC}"
@@ -54,40 +60,26 @@ pedir_xy() {
   setprop debug.touch.aim_lock_xy 1 > /dev/null 2>&1
 }
 
-# ==========================================
-#  VERIFICAÇÃO DE LICENÇA
-# ==========================================
 verificar_licenca() {
   clear
-  echo -e "${R}"
-  echo "  ██╗  ██╗███████╗██╗     ██╗      ██████╗     ██╗██╗████████╗████████╗██╗   ██╗"
-  echo "  ██║  ██║██╔════╝██║     ██║     ██╔═══██╗    ██║██║╚══██╔══╝╚══██╔══╝╚██╗ ██╔╝"
-  echo "  ███████║█████╗  ██║     ██║     ██║   ██║    ██║██║   ██║      ██║    ╚████╔╝ "
-  echo "  ██╔══██║██╔══╝  ██║     ██║     ██║   ██║    ██║██║   ██║      ██║     ╚██╔╝  "
-  echo "  ██║  ██║███████╗███████╗███████╗╚██████╔╝    ██║██║   ██║      ██║      ██║   "
-  echo "  ╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝ ╚═════╝     ╚═╝╚═╝   ╚═╝      ╚═╝      ╚═╝   "
-  echo -e "${NC}"
-  echo -e "${RP}      /\_/\   ${AM}🎀 VERIFICANDO REGISTRO VIP ULTRA... 🎀${NC}"
-  echo -e "${RP}     ( o.o )  ${RF}=================================================${NC}"
-  echo -e "${RP}      > ^ <   ${RM}TikTok: 7vn&120hz${NC}"
-  echo ""
+  echo -e "${R}  VERIFICANDO REGISTRO VIP ULTRA... 🎀${NC}"
   sleep 1
 }
-
 verificar_licenca
 
 # ==========================================
-#  CABECALHO COM BANNER LIMPO E SEM TAGS HTML
+#  EXIBIR CABEÇALHO COM A IMAGEM REAL
 # ==========================================
 exibir_cabecalho() {
   clear
-  echo -e "${R}  ██╗  ██╗███████╗██╗     ██╗      ██████╗     ██╗██╗████████╗████████╗██╗   ██╗${NC}"
-  echo -e "${R}  ██║  ██║██╔════╝██║     ██║     ██╔═══██╗    ██║██║╚══██╔══╝╚══██╔══╝╚██╗ ██╔╝${NC}"
-  echo -e "${RP}  ███████║█████╗  ██║     ██║     ██║   ██║    ██║██║   ██║      ██║    ╚████╔╝ ${NC}"
-  echo -e "${RP}  ██╔══██║██╔══╝  ██║     ██║     ██║   ██║    ██║██║   ██║      ██║     ╚██╔╝  ${NC}"
-  echo -e "${RF}  ██║  ██║███████╗███████╗███████╗╚██████╔╝    ██║██║   ██║      ██║      ██║   ${NC}"
-  echo -e "${RF}  ╚═╝  ╚═╝╚══════╝╚══════╝╚══════╝ ╚═════╝     ╚═╝╚═╝   ╚═╝      ╚═╝      ╚═╝   ${NC}"
-  echo -e "${RP}      /\_/\   ${AM}🎀 7VN OPTIMIZER VIP - HELLO KITTY EDITION v6.0 🎀${NC}"
+  
+  # Renderiza a imagem real usando o chafa do arquivo local
+  if [ -f "$LOCAL_IMG" ]; then
+    chafa --size=35x12 "$LOCAL_IMG" 2>/dev/null
+    echo ""
+  fi
+
+  echo -e "${RP}      /\_/\   ${AM}🎀 7VN OPTIMIZER VIP - HELLO KITTY EDITION 🎀${NC}"
   echo -e "${RP}     ( o.o )  ${RF}=================================================${NC}"
   echo -e "${RP}      > ^ <   ${RM}TikTok: 7vn&120hz${NC}"
   echo ""
@@ -148,20 +140,7 @@ while true; do
       setprop persist.sys.touch.rate 240 > /dev/null 2>&1
       setprop persist.sys.touch.response 1 > /dev/null 2>&1
       setprop persist.sys.touch.sensitivity 100 > /dev/null 2>&1
-      setprop debug.input.velocity_tracker 1 > /dev/null 2>&1
-      setprop debug.input.pointer_movement 1 > /dev/null 2>&1
-      setprop persist.sys.touch.pressure_scale 0.001 > /dev/null 2>&1
-      setprop persist.sys.touch.size_scale 1 > /dev/null 2>&1
-      setprop persist.sys.touch.orientation_scale 1 > /dev/null 2>&1
-      setprop persist.sys.touch.distance_scale 1 > /dev/null 2>&1
-      setprop persist.sys.touch.tilt_scale 1 > /dev/null 2>&1
-      setprop debug.touch.gesture_mode 0 > /dev/null 2>&1
-      setprop debug.touch.filter_level 0 > /dev/null 2>&1
-      setprop debug.touch.boost 1 > /dev/null 2>&1
-      setprop persist.sys.touch.smooth 1 > /dev/null 2>&1
-      setprop debug.touch.fast_response 1 > /dev/null 2>&1
-
-      echo -e "${RP}🎀 Aceleração de eixos com 100 códigos ativada! 🎀${NC}"
+      echo -e "${RP}🎀 Aceleração de eixos ativada! 🎀${NC}"
       ;;
     6)
       setprop debug.sf.fps 144 > /dev/null 2>&1
@@ -186,3 +165,4 @@ while true; do
   echo ""
   read -p "Pressione [Enter] para voltar ao menu..."
 done
+
