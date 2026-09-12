@@ -1,36 +1,10 @@
 #!/data/data/com.termux/files/usr/bin/bash
 
 # ==========================================
-#  INSTALAÇÃO DE DEPENDÊNCIAS SILENCIOSA
+#  INSTALAÇÃO DE DEPENDÊNCIAS ESSENCIAIS
 # ==========================================
 command -v curl >/dev/null 2>&1 || pkg install curl -y >/dev/null 2>&1
 command -v mpv >/dev/null 2>&1 || pkg install mpv -y >/dev/null 2>&1
-command -v chafa >/dev/null 2>&1 || pkg install chafa -y >/dev/null 2>&1
-command -v magick >/dev/null 2>&1 || pkg install imagemagick -y >/dev/null 2>&1
-
-# ==========================================
-#  DOWNLOAD E CONVERSÃO DA IMAGEM EM RAM
-# ==========================================
-RAW_IMG="$TMPDIR/.raw_banner.jpeg"
-IMG_PNG="$TMPDIR/.script_banner.png"
-URL_IMAGEM="https://files.catbox.moe/j76wht.jpeg"
-
-limpar_temp() {
-  rm -f "$RAW_IMG" "$IMG_PNG"
-  if [ -n "$MUSICA_PID" ] && kill -0 "$MUSICA_PID" 2>/dev/null; then
-    kill "$MUSICA_PID" 2>/dev/null
-  fi
-}
-trap limpar_temp EXIT INT TERM
-
-# Força o download limpo simulando um navegador real para o Catbox não bloquear
-if [ ! -s "$IMG_PNG" ]; then
-  curl -sL -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36" "$URL_IMAGEM" -o "$RAW_IMG" > /dev/null 2>&1
-  if [ -s "$RAW_IMG" ]; then
-    magick "$RAW_IMG" "$IMG_PNG" > /dev/null 2>&1
-    rm -f "$RAW_IMG"
-  fi
-fi
 
 # ==========================================
 #  REPRODUTOR DE MÚSICA DE FUNDO
@@ -41,6 +15,14 @@ if [ -n "$URL_MUSICA" ]; then
   MUSICA_PID=$!
 fi
 
+# Função para fechar a música ao sair
+limpar_temp() {
+  if [ -n "$MUSICA_PID" ] && kill -0 "$MUSICA_PID" 2>/dev/null; then
+    kill "$MUSICA_PID" 2>/dev/null
+  fi
+}
+trap limpar_temp EXIT INT TERM
+
 # ==========================================
 #  PALETA DE CORES HELLO KITTY VIP
 # ==========================================
@@ -48,7 +30,6 @@ ROSA_CHOQUE='\033[38;2;255;20;147m'
 ROSA_PASTEL='\033[38;2;255;105;180m'
 ROSA_FOFO='\033[38;2;255;182;193m'
 ROSA_MAGENTA='\033[38;2;255;0;128m'
-BRANCO='\033[38;2;255;255;255m'
 AMARELO_LACO='\033[38;2;255;215;0m'
 NC='\033[0m'
 
@@ -91,36 +72,24 @@ verificar_licenca() {
   echo -e "${ROSA_PASTEL}     ( o.o )  ${ROSA_FOFO}=================================================${NC}"
   echo -e "${ROSA_PASTEL}      > ^ <   ${ROSA_MAGENTA}TikTok: 7vn&120hz${NC}"
   echo ""
-
-  if [ -f "$KEY_FILE" ] && [ "$(cat "$KEY_FILE")" == "$CHAVE_VALIDA" ]; then
-    sleep 1
-    return 0
-  else
-    echo "$CHAVE_VALIDA" > "$KEY_FILE"
-    sleep 1
-    return 0
-  fi
+  sleep 1
 }
 
 verificar_licenca
 
 # ==========================================
-#  CABECALHO COM IMAGEM BANNER
+#  CABECALHO COM BANNER EM TEXTO ANSI (100% GARANTIDO)
 # ==========================================
 exibir_cabecalho() {
   clear
-  
-  # Força a renderização do banner via chafa
-  if [ -s "$IMG_PNG" ]; then
-    chafa --size=40x15 --colors=248 "$IMG_PNG" 2>/dev/null
-    echo ""
-  else
-    echo -e "${ROSA_CHOQUE}  [ BANNER HELLO KITTY CARREGANDO... ]${NC}"
-  fi
-
-  echo -e "${ROSA_CHOQUE}  ██╗  ██╗███████╗██╗     ██╗      ██████╗     ██╗██╗████████╗████████╗██╗   ██╗${NC}"
-  echo -e "${ROSA_CHOQUE}  ██║  ██║██╔════╝██║     ██║     ██╔═══██╗    ██║██║╚══██╔══╝╚══██╔══╝╚██╗ ██╔╝${NC}"
-  echo -e "${ROSA_CHOQUE}  ███████║█████╗  ██║     ██║     ██║   ██║    ██║██║   ██║      ██║    ╚████╔╝ ${NC}"
+  echo -e "${ROSA_CHOQUE}"
+  echo " ██╗   ██╗███████╗██╗      ██╗      ███╗   ██╗██╗████████╗████████╗██╗   ██╗"
+  echo " ██║   ██║██╔════╝██║      ██║      ████╗  ██║██║╚══██╔══╝╚══██╔══╝╚██╗ ██╔╝"
+  echo " ██║   ██║█████╗  ██║      ██║      ██╔██╗ ██║██║   ██║      ██║    ╚████╔╝ "
+  echo " ╚<div>██╔╝██╔══╝  ██║      ██║      ██║╚██╗██║██║   ██║      ██║     ╚██╔╝  "
+  echo "  ╚<div>██╔╝ ███████╗███████╗ ███████╗ ██║ ╚████║██║   ██║      ██║      ██║   "
+  echo "   ╚═╝  ╚══════╝╚══════╝╚══════╝ ╚═╝  ╚═══╝╚═╝   ╚═╝      ╚═╝      ╚═╝   "
+  echo -e "${NC}"
   echo -e "${ROSA_PASTEL}      /\_/\   ${AMARELO_LACO}🎀 7VN OPTIMIZER VIP - HELLO KITTY EDITION v6.0 🎀${NC}"
   echo -e "${ROSA_PASTEL}     ( o.o )  ${ROSA_FOFO}=================================================${NC}"
   echo -e "${ROSA_PASTEL}      > ^ <   ${ROSA_MAGENTA}TikTok: 7vn&120hz${NC}"
